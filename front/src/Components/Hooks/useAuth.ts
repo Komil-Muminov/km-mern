@@ -6,7 +6,7 @@ export interface TRegScheme {
 
 export const useAuth = () => {
 	const regMe = async (data: TRegScheme): Promise<Response> => {
-		return await fetch(`https://km-node-back.vercel.app/regme`, {
+		return await fetch(`https://km-mern-backend.onrender.com/regme`, {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
