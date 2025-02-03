@@ -63,7 +63,7 @@ app.post("/regme", async (req, res) => {
 	}
 });
 // Запуск сервера
-const PORT = process.env.PORT || 4000;
+const PORT = 3000 || 4000;
 app.listen(PORT, () => {
 	console.log(`Сервер запущен по адресу: http://localhost:${PORT}`);
 });
