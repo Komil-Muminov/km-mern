@@ -57,7 +57,9 @@ const userScheme = new mongoose.Schema({
 	username: { type: String, required: true },
 	email: { type: String, required: true, unique: true },
 	password: { type: String, required: true },
+	file: { type: String, required: true },
 });
+
 const userModel = mongoose.model("user", userScheme);
 
 // Requests
@@ -72,6 +74,18 @@ app.post(`/regme`, async (req, res) => {
 		return res.status(400).json({ message: "Такой email уже существует" });
 	} else {
 		await userModel.create({ username, email, password });
+	}
+});
+
+// uAvatar
+app.post("/crmfile", uAvatarFunc.single("uavatar"), async (req, res) => {
+	const { email } = req.body;
+	if (!email || !req.file) {
+		return res.status(400).json({ message: "Ошибка файла" });
+	} else if (await userModel.findOne({ email })) {
+		const filePath = req.file.path;
+		await userModel.findOneAndUpdate({ email }, { file: filePath });
+		await userModel.findOneAndDelete({ email });
 	}
 });
 
