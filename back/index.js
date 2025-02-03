@@ -1,69 +1,86 @@
-import express from "express";
-import multer from "multer";
-import path from "path";
-import { fileURLToPath } from "url";
 import mongoose from "mongoose";
+import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
-dotenv.config();
-
-// MongoDB Atlas
-
-// 27017 mongoDB
-mongoose
-	.connect(`mongodb://localhost:27017/komilff`)
-	.then(() => console.log(`БД монго подключен`))
-	.catch(() => console.log(`БД монго ошибка при подключение`));
-// ---------------------------------------------------------------------------
+import { fileURLToPath } from "url";
+import { existsSync, mkdirSync } from "fs";
+import path from "path";
+import multer from "multer";
 
 // Express
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Настройка CORS
+//MongoDB-conection and cors
+// Настройка CORS для всех источников
 app.use(
 	cors({
-		origin: "*",
-		methods: ["GET", "POST", "PUT", "DELETE"],
-		allowedHeaders: ["Content-Type", "Authorization"],
+		origin: "*", // Разрешаем доступ с любого источника (для разработки)
+		methods: ["GET", "POST", "PUT", "DELETE"], // Разрешенные методы
+		allowedHeaders: ["Content-Type", "Authorization"], // Разрешенные заголовки
 	}),
 );
 
-app.get("/type-font/Colfax-Medium.woff", (req, res) => {
-	res.status(204).send(); // Возвращает "ничего", но без ошибки 404
+// 27017
+mongoose
+	.connect(`mongodb://localhost:27017/KM-DB`)
+	.then(() => console.log(`Сервер запущен (Монго ДБ)`))
+	.catch(() => console.log(`Ошибка при подключение МонгоДБ`));
+
+// file-dir
+const fileDir = path.dirname(fileURLToPath(import.meta.url));
+const uAvatarFileFolder = path.join(fileDir, "users-avatar");
+if (!existsSync(uAvatarFileFolder)) {
+	mkdirSync(uAvatarFileFolder);
+}
+
+// file-functions
+const uAvatarFunc = multer({
+	storage: multer.diskStorage({
+		destination: uAvatarFileFolder,
+		filename: (_, file, cb) => cb(null, `km-${file.originalname}`),
+	}),
+	limits: {
+		fileSize: 2 * 1024 * 1024,
+	},
+	fileFilter: (_, file, cb) => {
+		if (!["image/jpg", "image/jpeg", "image/png"].includes(file.mimetype)) {
+			cb(new Error(`Ошибка формата`), false);
+		} else {
+			cb(null, true);
+		}
+	},
 });
+
 // MongoDB
 const userScheme = new mongoose.Schema({
 	username: { type: String, required: true },
-	password: { type: String, required: true },
 	email: { type: String, required: true, unique: true },
+	password: { type: String, required: true },
 });
-
 const userModel = mongoose.model("user", userScheme);
 
-// Запросы
-
-app.post("/regme", async (req, res) => {
-	try {
-		const { username, email, password } = req.body;
-		if ([username, email].includes(undefined)) {
-			return res.status(400).send(`Объязательные поля отсутсвуют`);
-		}
-
-		if (await userModel.findOne({ email })) {
-			return res.status(400).send(`Такой email уже есть`);
-		} else {
-			await userModel.create({ username, email, password });
-			return res.status(200).send(`Пользователь успешно добавлен`);
-		}
-	} catch (error) {
-		console.error("Ошибка сервера:", error);
-		return res.status(500).send("Ошибка в сервере");
+// Requests
+/**
+ * Regme-регистрация
+ */
+app.post(`/regme`, async (req, res) => {
+	const { username, email, password } = req.body;
+	if ([username, email, password].includes(undefined)) {
+		return res.status(400).json({ message: "Отсутсвуют объязательнные поля" });
+	} else if (await userModel.findOne({ email })) {
+		return res.status(400).json({ message: "Такой email уже существует" });
+	} else {
+		await userModel.create({ username, email, password });
 	}
 });
-// Запуск сервера
+
+// server-run
 const PORT = 3000 || 4000;
 app.listen(PORT, () => {
-	console.log(`Сервер запущен по адресу: http://localhost:${PORT}`);
+	try {
+		console.log(`Сервер запущен на порту ${PORT}`);
+	} catch (error) {
+		console.log(`Ошибка при app.listen`);
+	}
 });
