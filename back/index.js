@@ -11,7 +11,7 @@ dotenv.config();
 
 // 27017 mongoDB
 mongoose
-	.connect(`mongodb://localhost:27017`)
+	.connect(`mongodb://localhost:27017/komilff`)
 	.then(() => console.log(`БД монго подключен`))
 	.catch(() => console.log(`БД монго ошибка при подключение`));
 // ---------------------------------------------------------------------------
@@ -64,6 +64,6 @@ app.post("/regme", async (req, res) => {
 });
 // Запуск сервера
 const PORT = process.env.PORT || 4000;
-app.listen(PORT || 3000, () => {
+app.listen(PORT, () => {
 	console.log(`Сервер запущен по адресу: http://localhost:${PORT}`);
 });
