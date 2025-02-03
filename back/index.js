@@ -11,11 +11,9 @@ dotenv.config();
 
 // 27017 mongoDB
 mongoose
-	.connect(
-		"mongodb+srv://velasquez9780:Merlinjon9780@cluster0.dznpn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0",
-	)
-	.then(() => console.log("БД MongoDB подключена"))
-	.catch((error) => console.log("Ошибка при подключении к MongoDB", error));
+	.connect(`mongodb://localhost:27017`)
+	.then(() => console.log(`БД монго подключен`))
+	.catch(() => console.log(`БД монго ошибка при подключение`));
 // ---------------------------------------------------------------------------
 
 // Express
