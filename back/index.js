@@ -56,7 +56,7 @@ app.post("/regme", async (req, res) => {
 			return res.status(200).send(`Пользователь успешно добавлен`);
 		}
 	} catch (error) {
-		console.error("Ошибка сервера:", error); // Логируем ошибку
+		console.error("Ошибка сервера:", error);
 		return res.status(500).send("Ошибка в сервере");
 	}
 });
