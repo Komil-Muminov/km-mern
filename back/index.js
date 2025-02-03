@@ -7,9 +7,13 @@ import cors from "cors";
 import dotenv from "dotenv";
 dotenv.config();
 
+// MongoDB Atlas
+
 // 27017 mongoDB
 mongoose
-	.connect("mongodb://localhost:27017/komilff")
+	.connect(
+		"mongodb+srv://velasquez9780:<Merlinjon9780>@cluster0.dznpn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0",
+	)
 	.then(() => console.log(`БД монго подключен`))
 	.catch(() => console.log(`БД монго ошибка при подключение`));
 // ---------------------------------------------------------------------------
@@ -63,5 +67,5 @@ app.post("/regme", async (req, res) => {
 // Запуск сервера
 const PORT = process.env.PORT || 4000;
 app.listen(PORT || 3000, () => {
-	console.log(`Сервер запущен по адресу: http://localhost:${PORT || 3000}`);
+	console.log(`Сервер запущен по адресу: http://localhost:${PORT}`);
 });
